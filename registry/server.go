@@ -33,7 +33,7 @@ func (r *registry) remove(url string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Service at url %v not found", url)
+	return fmt.Errorf("service at url %v not found", url)
 }
 
 var reg = registry{

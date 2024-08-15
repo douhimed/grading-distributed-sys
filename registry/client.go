@@ -20,7 +20,7 @@ func RegisterService(r Registration) error {
 		return err
 	}
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("Failed to register, code status %v", res.StatusCode)
+		return fmt.Errorf("failed to register, code status %v", res.StatusCode)
 	}
 
 	return nil
@@ -38,7 +38,7 @@ func ShutdownService(url string) error {
 	req.Header.Add("Content-Type", "text/plain")
 	res, err := http.DefaultClient.Do(req)
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("Failed to deregistry service, status %v", res.StatusCode)
+		return fmt.Errorf("failed to deregistry service, status %v", res.StatusCode)
 	}
 	return err
 }
