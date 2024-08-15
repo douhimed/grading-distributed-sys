@@ -29,7 +29,7 @@ func RegisterService(r Registration) error {
 func ShutdownService(url string) error {
 	req, err := http.NewRequest(
 		http.MethodDelete,
-		url,
+		ServicesURL,
 		bytes.NewBuffer([]byte(url)),
 	)
 	if err != nil {
@@ -38,7 +38,7 @@ func ShutdownService(url string) error {
 	req.Header.Add("Content-Type", "text/plain")
 	res, err := http.DefaultClient.Do(req)
 	if res.StatusCode != http.StatusOK {
-		fmt.Errorf("Failed to deregidtry service, status %v", res.StatusCode)
+		return fmt.Errorf("Failed to deregistry service, status %v", res.StatusCode)
 	}
 	return err
 }

@@ -19,7 +19,6 @@ type registry struct {
 
 func (r *registry) add(reg Registration) error {
 	r.mutex.Lock()
-	fmt.Printf("===================== %v, %v", reg.ServiceName, reg.ServiceURL)
 	r.registrations = append(r.registrations, reg)
 	r.mutex.Unlock()
 	return nil
@@ -71,7 +70,7 @@ func (s RegistryService) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		url := string(payload)
-		log.Printf("Removinf service %v", url)
+		log.Printf("Removing service %v", url)
 		err = reg.remove(url)
 		if err != nil {
 			log.Println(err)
