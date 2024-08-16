@@ -5,7 +5,7 @@ import (
 	"fmt"
 	stlog "log"
 
-	grades "github.com/douhimed/grading-distributed-sys/grages"
+	"github.com/douhimed/grading-distributed-sys/grades"
 	"github.com/douhimed/grading-distributed-sys/log"
 	"github.com/douhimed/grading-distributed-sys/registry"
 	"github.com/douhimed/grading-distributed-sys/service"
