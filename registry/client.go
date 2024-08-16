@@ -4,13 +4,23 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
+	"math/rand/v2"
 	"net/http"
+	"net/url"
+	"sync"
 )
 
 func RegisterService(r Registration) error {
+	serviceUpdateURL, err := url.Parse(r.ServiceUpdateURL)
+	if err != nil {
+		return err
+	}
+	http.Handle(serviceUpdateURL.Path, &serviceUpdateHandler{})
+
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
-	err := enc.Encode(r)
+	err = enc.Encode(r)
 	if err != nil {
 		return err
 	}
@@ -41,4 +51,68 @@ func ShutdownService(url string) error {
 		return fmt.Errorf("failed to deregistry service, status %v", res.StatusCode)
 	}
 	return err
+}
+
+type providers struct {
+	services map[ServiceName][]string
+	mutex    *sync.RWMutex
+}
+
+func (p *providers) Update(patch patch) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	for _, patchEntry := range patch.Added {
+		if _, ok := p.services[patchEntry.Name]; !ok {
+			p.services[patchEntry.Name] = make([]string, 0)
+		}
+		p.services[patchEntry.Name] = append(p.services[patchEntry.Name], patchEntry.URL)
+	}
+
+	for _, patchEntry := range patch.Removed {
+		if providersURL, ok := p.services[patchEntry.Name]; ok {
+			for i := range providersURL {
+				if providersURL[i] == patchEntry.URL {
+					p.services[patchEntry.Name] = append(providersURL[:i], providersURL[i+1:]...)
+				}
+			}
+		}
+	}
+}
+
+func (p providers) get(name ServiceName) (string, error) {
+	providers, ok := p.services[name]
+	if !ok {
+		return "", fmt.Errorf("No providers available for service %v", name)
+	}
+	idx := int(rand.Float32() * float32(len(providers)))
+	return providers[idx], nil
+}
+
+func GetProvider(name ServiceName) (string, error) {
+	return prov.get(name)
+}
+
+var prov = providers{
+	services: make(map[ServiceName][]string),
+	mutex:    new(sync.RWMutex),
+}
+
+type serviceUpdateHandler struct{}
+
+func (suh serviceUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	dec := json.NewDecoder(r.Body)
+	var p patch
+	err := dec.Decode(&p)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	prov.Update(p)
 }

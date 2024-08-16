@@ -6,6 +6,7 @@ import (
 	stlog "log"
 
 	grades "github.com/douhimed/grading-distributed-sys/grages"
+	"github.com/douhimed/grading-distributed-sys/log"
 	"github.com/douhimed/grading-distributed-sys/registry"
 	"github.com/douhimed/grading-distributed-sys/service"
 )
@@ -17,6 +18,8 @@ func main() {
 	var r registry.Registration
 	r.ServiceName = registry.GradingService
 	r.ServiceURL = serviceAddress
+	r.RequiredServices = []registry.ServiceName{registry.LogService}
+	r.ServiceUpdateURL = r.ServiceURL + "/services"
 
 	ctx, err := service.Start(
 		context.Background(),
@@ -28,6 +31,11 @@ func main() {
 
 	if err != nil {
 		stlog.Fatal(err)
+	}
+
+	if logProvider, err := registry.GetProvider(registry.LogService); err == nil {
+		fmt.Printf("Logging service found at url %v\n", logProvider)
+		log.SetClientLogger(logProvider, r.ServiceName)
 	}
 
 	<-ctx.Done()

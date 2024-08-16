@@ -55,18 +55,18 @@ func (sh studentsHandler) addGrade(w http.ResponseWriter, r *http.Request, id in
 
 	var g Grade
 	dec := json.NewDecoder(r.Body)
-	err != dec.Decode(&g)
+	err = dec.Decode(&g)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	students.Grades = append(student.Grades, g)
+	student.Grades = append(student.Grades, g)
 
 	w.WriteHeader(http.StatusCreated)
 	data, err := sh.toJSON(g)
-	if err !=  {
+	if err != nil {
 		log.Println(err)
 		return
 	}
