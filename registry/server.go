@@ -96,6 +96,16 @@ func (r registry) sendPath(p patch, url string) error {
 func (r *registry) remove(url string) error {
 	for i := range r.registrations {
 		if r.registrations[i].ServiceURL == url {
+			r.notify(
+				patch{
+					Removed: []patchEntry{
+						{
+							Name: r.registrations[i].ServiceName,
+							URL:  r.registrations[i].ServiceURL,
+						},
+					},
+				},
+			)
 			r.mutex.Lock()
 			r.registrations = append(r.registrations[:i], r.registrations[i+1:]...)
 			r.mutex.Unlock()
