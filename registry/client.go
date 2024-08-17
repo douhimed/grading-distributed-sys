@@ -83,7 +83,7 @@ func (p *providers) Update(patch patch) {
 func (p providers) get(name ServiceName) (string, error) {
 	providers, ok := p.services[name]
 	if !ok {
-		return "", fmt.Errorf("No providers available for service %v", name)
+		return "", fmt.Errorf("no providers available for service %v", name)
 	}
 	idx := int(rand.Float32() * float32(len(providers)))
 	return providers[idx], nil
