@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	host, port := "localhost", "6000"
+	host, port := "localhost", "8002"
 	serviceAddress := fmt.Sprintf("http://%v:%v", host, port)
 
 	var r registry.Registration
